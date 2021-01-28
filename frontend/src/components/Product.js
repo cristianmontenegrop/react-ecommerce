@@ -1,5 +1,7 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
+import Rating from './Rating';
+import PropTypes from 'prop-types';
 
 const Product = ({ product }) => {
   return (
@@ -7,8 +9,29 @@ const Product = ({ product }) => {
       <a href={`/product/${product._id}`}>
         <Card.Img src={product.image} variant='top'></Card.Img>
       </a>
+      <Card.Body>
+        <a href={`/product/${product._id}`}>
+          <Card.Title as='div'>
+            <strong>{product.name}</strong>
+          </Card.Title>
+        </a>
+        <Card.Text as='div'>
+          <Rating value={product.rating} text={`${product.numReviews} reviews`}></Rating>
+        </Card.Text>
+        <Card.Text as='h3'>${product.price}</Card.Text>
+      </Card.Body>
     </Card>
   );
+};
+
+// setting a default Prop for Rating Card
+Rating.defaultProps = { color: '#F8e825' };
+
+// Prop validation that triggers a console alert if false
+Rating.propTypes = {
+  value: PropTypes.number.isRequired,
+  text: PropTypes.string.isRequired,
+  color: PropTypes.string,
 };
 
 export default Product;
