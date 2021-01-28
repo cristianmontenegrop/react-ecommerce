@@ -1,0 +1,25 @@
+{
+  "name": "react-ecommerce",
+  "version": "1.0.0",
+  "description": "MERN ecommerce app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./backend/server.js",
+    "watch": "nodemon ./backend/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cristianmontenegrop/react-ecommerce.git"
+  },
+  "author": "Cristian Montenegro",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/cristianmontenegrop/react-ecommerce/issues"
+  },
+  "homepage": "https://github.com/cristianmontenegrop/react-ecommerce#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.7"
+  }
+}
