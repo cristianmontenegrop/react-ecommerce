@@ -18,6 +18,4 @@ router
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
 
-// router.route('/profile').post(protect, updateUserProfile);
-
 export default router;
