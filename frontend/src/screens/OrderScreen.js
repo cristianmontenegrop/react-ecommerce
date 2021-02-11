@@ -16,7 +16,7 @@ const OrderScreen = ({ match }) => {
 
   useEffect(() => {
     dispatch(getOrderDetails(orderId));
-  }, [dispatch, order, orderId]);
+  }, [dispatch, orderId]);
 
   if (!loading) {
     order.itemsPrice = order.orderItems
