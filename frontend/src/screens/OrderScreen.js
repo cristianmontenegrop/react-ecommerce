@@ -5,7 +5,11 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
-import { getOrderDetails, payOrder } from '../actions/orderActions';
+import {
+  getOrderDetails,
+  payOrder,
+  clearOrderDetails,
+} from '../actions/orderActions';
 import { ORDER_PAY_RESET } from '../constants/orderConstants';
 import { PayPalButton } from 'react-paypal-button-v2';
 
@@ -36,6 +40,7 @@ const OrderScreen = ({ match }) => {
     };
 
     if (order && order._id !== orderId) {
+      dispatch(clearOrderDetails());
       dispatch(getOrderDetails(orderId));
     }
 
@@ -165,21 +170,21 @@ const OrderScreen = ({ match }) => {
               <ListGroup.Item>
                 <Row>
                   <Col>Shipping</Col>
-                  <Col>${order.shippingPrice}</Col>
+                  <Col>${order.shippingPrice.toFixed(2)}</Col>
                 </Row>
               </ListGroup.Item>
 
               <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>
-                  <Col>${order.taxPrice}</Col>
+                  <Col>${order.taxPrice.toFixed(2)}</Col>
                 </Row>
               </ListGroup.Item>
 
               <ListGroup.Item>
                 <Row>
                   <Col>Total</Col>
-                  <Col>${order.totalPrice}</Col>
+                  <Col>${order.totalPrice.toFixed(2)}</Col>
                 </Row>
               </ListGroup.Item>
               {!order.isPaid && (
@@ -189,7 +194,7 @@ const OrderScreen = ({ match }) => {
                     <Loader />
                   ) : (
                     <PayPalButton
-                      amount={order.totalPrice}
+                      amount={order.totalPrice.toFixed(2)}
                       onSuccess={successPaymentHandler}
                     />
                   )}

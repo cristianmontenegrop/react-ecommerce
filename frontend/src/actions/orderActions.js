@@ -4,6 +4,7 @@ import {
   ORDER_CREATE_SUCCESS,
   ORDER_DETAILS_REQUEST,
   ORDER_DETAILS_FAIL,
+  ORDER_DETAILS_RESET,
   ORDER_DETAILS_SUCCESS,
   ORDER_PAY_REQUEST,
   ORDER_PAY_FAIL,
@@ -156,4 +157,8 @@ export const listMyOrders = (orderId, paymentResult) => async (
           : error.message,
     });
   }
+};
+
+export const clearOrderDetails = () => async (dispatch, getState) => {
+  dispatch({ type: ORDER_DETAILS_RESET });
 };
