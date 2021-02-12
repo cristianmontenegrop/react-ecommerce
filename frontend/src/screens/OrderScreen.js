@@ -35,9 +35,13 @@ const OrderScreen = ({ match }) => {
       document.body.appendChild(script);
     };
 
-    if (!order || successPay) {
-      dispatch({ type: ORDER_PAY_RESET });
+    if (order && order._id !== orderId) {
       dispatch(getOrderDetails(orderId));
+    }
+
+    if (!order || successPay) {
+      dispatch(getOrderDetails(orderId));
+      dispatch({ type: ORDER_PAY_RESET });
     } else if (!order.isPaid) {
       if (!window.paypal) {
         addPayPalScript();
