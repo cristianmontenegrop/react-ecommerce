@@ -18,7 +18,7 @@ import {
 } from '../constants/orderConstants';
 import { PayPalButton } from 'react-paypal-button-v2';
 
-const OrderScreen = ({ match }) => {
+const OrderScreen = ({ history, match }) => {
   const dispatch = useDispatch();
 
   const orderId = match.params.id;
@@ -38,6 +38,9 @@ const OrderScreen = ({ match }) => {
   const { success: shippingUpdateSuccess, orderShipping } = orderUpdateShipping;
 
   useEffect(() => {
+    if (!userInfo) {
+      history.push('/login');
+    }
     console.log('useEffect Triggered');
     const addPayPalScript = async () => {
       const { data: clientId } = await axios.get('/api/config/paypal');
@@ -69,6 +72,8 @@ const OrderScreen = ({ match }) => {
     }
   }, [
     dispatch,
+    history,
+    userInfo,
     order,
     orderId,
     successPay,
@@ -234,7 +239,7 @@ const OrderScreen = ({ match }) => {
               </ListGroup>
             </Card>
           </Row>
-          {userInfo && userInfo.isAdmin ? (
+          {userInfo && userInfo.isAdmin && order.isPaid ? (
             <Row>
               <Card className='mt-4'>
                 <ListGroup variant='flush'>
@@ -242,8 +247,11 @@ const OrderScreen = ({ match }) => {
                     <h4>Shipping Status</h4>
                   </ListGroup.Item>
                   <ListGroup.Item>
-                    <p>{order.isDelivered ? 'Order Shipped' : 'Not Shipped'}</p>
+                    <Button onClick={() => history.push('/admin/orderlist')}>
+                      Go Back
+                    </Button>
                   </ListGroup.Item>
+
                   <ListGroup.Item>
                     <Button onClick={updateShippingStatus}>
                       Update to {order.isDelivered ? 'Not Shipped' : 'Shipped'}
