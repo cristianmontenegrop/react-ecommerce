@@ -10,6 +10,10 @@ import {
   ORDER_PAY_FAIL,
   ORDER_PAY_SUCCESS,
   ORDER_PAY_RESET,
+  ORDER_UPDATE_SHIPPING_REQUEST,
+  ORDER_UPDATE_SHIPPING_FAIL,
+  ORDER_UPDATE_SHIPPING_SUCCESS,
+  ORDER_UPDATE_SHIPPING_RESET,
   ORDER_LIST_MY_REQUEST,
   ORDER_LIST_MY_FAIL,
   ORDER_LIST_MY_SUCCESS,
@@ -60,6 +64,21 @@ export const orderPayReducer = (state = { state: {} }, action) => {
     case ORDER_PAY_FAIL:
       return { loading: false, error: action.payload };
     case ORDER_PAY_RESET:
+      return {};
+    default:
+      return state;
+  }
+};
+
+export const orderUpdateShippingReducer = (state = { state: {} }, action) => {
+  switch (action.type) {
+    case ORDER_UPDATE_SHIPPING_REQUEST:
+      return { loading: true };
+    case ORDER_UPDATE_SHIPPING_SUCCESS:
+      return { loading: false, success: true, orderShipping: action.payload };
+    case ORDER_UPDATE_SHIPPING_FAIL:
+      return { loading: false, error: action.payload };
+    case ORDER_UPDATE_SHIPPING_RESET:
       return {};
     default:
       return state;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
+import moment from 'moment';
+import { Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../components/Loader';
@@ -9,8 +10,12 @@ import {
   getOrderDetails,
   payOrder,
   clearOrderDetails,
+  updateOrderShipping,
 } from '../actions/orderActions';
-import { ORDER_PAY_RESET } from '../constants/orderConstants';
+import {
+  ORDER_PAY_RESET,
+  ORDER_UPDATE_SHIPPING_RESET,
+} from '../constants/orderConstants';
 import { PayPalButton } from 'react-paypal-button-v2';
 
 const OrderScreen = ({ match }) => {
@@ -26,7 +31,14 @@ const OrderScreen = ({ match }) => {
   const orderPay = useSelector((state) => state.orderPay);
   const { loading: loadingPay, success: successPay } = orderPay;
 
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
+  const orderUpdateShipping = useSelector((state) => state.orderUpdateShipping);
+  const { success: shippingUpdateSuccess, orderShipping } = orderUpdateShipping;
+
   useEffect(() => {
+    console.log('useEffect Triggered');
     const addPayPalScript = async () => {
       const { data: clientId } = await axios.get('/api/config/paypal');
       const script = document.createElement('script');
@@ -39,8 +51,9 @@ const OrderScreen = ({ match }) => {
       document.body.appendChild(script);
     };
 
-    if (order && order._id !== orderId) {
+    if ((order && order._id !== orderId) || shippingUpdateSuccess) {
       dispatch(clearOrderDetails());
+      dispatch({ type: ORDER_UPDATE_SHIPPING_RESET });
       dispatch(getOrderDetails(orderId));
     }
 
@@ -54,7 +67,14 @@ const OrderScreen = ({ match }) => {
         setSdkReady(true);
       }
     }
-  }, [dispatch, order, orderId, successPay]);
+  }, [
+    dispatch,
+    order,
+    orderId,
+    successPay,
+    orderShipping,
+    shippingUpdateSuccess,
+  ]);
 
   if (!loading) {
     order.itemsPrice = order.orderItems
@@ -65,6 +85,12 @@ const OrderScreen = ({ match }) => {
   const successPaymentHandler = (paymentResult) => {
     console.log(paymentResult);
     dispatch(payOrder(orderId, paymentResult));
+  };
+
+  const updateShippingStatus = () => {
+    if (window.confirm('Are you sure?')) {
+      dispatch(updateOrderShipping(orderId));
+    }
   };
 
   return loading ? (
@@ -97,7 +123,8 @@ const OrderScreen = ({ match }) => {
               </p>
               {order.isDelivered ? (
                 <Message variant='success'>
-                  Delivered on {order.DeliveredAt}
+                  Delivered on{' '}
+                  {moment(order.deliveredAt).format('MMMM Do YYYY, h:mm:ss a')}
                 </Message>
               ) : (
                 <Message variant='danger'>Not Delivered</Message>
@@ -111,7 +138,10 @@ const OrderScreen = ({ match }) => {
                 {order.paymentMethod}
               </p>
               {order.isPaid ? (
-                <Message variant='success'>Paid on {order.paidAt}</Message>
+                <Message variant='success'>
+                  Paid on{' '}
+                  {moment(order.paidAt).format('MMMM Do YYYY, h:mm:ss a')}
+                </Message>
               ) : (
                 <Message variant='danger'>Not paid</Message>
               )}
@@ -154,54 +184,77 @@ const OrderScreen = ({ match }) => {
           </ListGroup>
         </Col>
         <Col md={4}>
-          <Card>
-            <ListGroup variant='flush'>
-              <ListGroup.Item>
-                <h2>Order Summary</h2>
-              </ListGroup.Item>
-
-              <ListGroup.Item>
-                <Row>
-                  <Col>Items</Col>
-                  <Col>${order.itemsPrice}</Col>
-                </Row>
-              </ListGroup.Item>
-
-              <ListGroup.Item>
-                <Row>
-                  <Col>Shipping</Col>
-                  <Col>${order.shippingPrice.toFixed(2)}</Col>
-                </Row>
-              </ListGroup.Item>
-
-              <ListGroup.Item>
-                <Row>
-                  <Col>Tax</Col>
-                  <Col>${order.taxPrice.toFixed(2)}</Col>
-                </Row>
-              </ListGroup.Item>
-
-              <ListGroup.Item>
-                <Row>
-                  <Col>Total</Col>
-                  <Col>${order.totalPrice.toFixed(2)}</Col>
-                </Row>
-              </ListGroup.Item>
-              {!order.isPaid && (
+          <Row>
+            <Card>
+              <ListGroup variant='flush'>
                 <ListGroup.Item>
-                  {loadingPay && <Loader />}
-                  {!sdkReady ? (
-                    <Loader />
-                  ) : (
-                    <PayPalButton
-                      amount={order.totalPrice.toFixed(2)}
-                      onSuccess={successPaymentHandler}
-                    />
-                  )}
+                  <h2>Order Summary</h2>
                 </ListGroup.Item>
-              )}
-            </ListGroup>
-          </Card>
+
+                <ListGroup.Item>
+                  <Row>
+                    <Col>Items</Col>
+                    <Col>${order.itemsPrice}</Col>
+                  </Row>
+                </ListGroup.Item>
+
+                <ListGroup.Item>
+                  <Row>
+                    <Col>Shipping</Col>
+                    <Col>${order.shippingPrice.toFixed(2)}</Col>
+                  </Row>
+                </ListGroup.Item>
+
+                <ListGroup.Item>
+                  <Row>
+                    <Col>Tax</Col>
+                    <Col>${order.taxPrice.toFixed(2)}</Col>
+                  </Row>
+                </ListGroup.Item>
+
+                <ListGroup.Item>
+                  <Row>
+                    <Col>Total</Col>
+                    <Col>${order.totalPrice.toFixed(2)}</Col>
+                  </Row>
+                </ListGroup.Item>
+                {!order.isPaid && (
+                  <ListGroup.Item>
+                    {loadingPay && <Loader />}
+                    {!sdkReady ? (
+                      <Loader />
+                    ) : (
+                      <PayPalButton
+                        amount={order.totalPrice.toFixed(2)}
+                        onSuccess={successPaymentHandler}
+                      />
+                    )}
+                  </ListGroup.Item>
+                )}
+              </ListGroup>
+            </Card>
+          </Row>
+          {userInfo && userInfo.isAdmin ? (
+            <Row>
+              <Card className='mt-4'>
+                <ListGroup variant='flush'>
+                  <ListGroup.Item>
+                    <h4>Shipping Status</h4>
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <p>{order.isDelivered ? 'Order Shipped' : 'Not Shipped'}</p>
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <Button onClick={updateShippingStatus}>
+                      Update to {order.isDelivered ? 'Not Shipped' : 'Shipped'}
+                    </Button>
+                  </ListGroup.Item>
+                </ListGroup>
+              </Card>
+            </Row>
+          ) : (
+            ''
+          )}
         </Col>
       </Row>
     </>
