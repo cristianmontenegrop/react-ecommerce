@@ -22,6 +22,7 @@ const App = () => {
   return (
     <Router>
       <Header />
+      {/* <Route path='' component={Header}></Route> */}
       <main className='py-3'>
         <Container>
           <Route path='/login' component={LoginScreen}></Route>
