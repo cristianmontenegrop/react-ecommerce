@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { useDispatch, useSelector } from 'react-redux';
 import { Row, Col } from 'react-bootstrap';
 import Product from '../components/Product';
@@ -7,6 +8,7 @@ import Loader from '../components/Loader';
 import { listProducts } from '../actions/productActions';
 import Paginate from '../components/Paginate';
 import ProductCarousel from '../components/ProductCarousel';
+import Meta from '../components/Meta';
 
 const HomeScreen = ({ match }) => {
   const dispatch = useDispatch();
@@ -22,6 +24,7 @@ const HomeScreen = ({ match }) => {
 
   return (
     <>
+      <Meta />
       {!keyword && <ProductCarousel></ProductCarousel>}
       <h1>Latest Products</h1>
       {loading ? (
